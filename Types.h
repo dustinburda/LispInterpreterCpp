@@ -28,24 +28,17 @@ private:
 };
 
 
-enum class symbol_t {
-    PLUS,
-    MINUS,
-    MULTIPLY,
-    DIVIDE
-};
-
 class mal_symbol_t : public mal_t {
 public:
     explicit mal_symbol_t(char symbol) : symbol_ {symbol} {}
 
 private:
-    [[maybe_unused]] symbol_t symbol_;
+    [[maybe_unused]] std::string symbol_;
 };
 
 class mal_num_t : public mal_t {
 public:
-    explicit mal_num_t(int num) : num_ {num} {}
+    explicit mal_num_t(double num) : num_ {num} {}
 
 private:
     [[maybe_unused]]  double num_;
