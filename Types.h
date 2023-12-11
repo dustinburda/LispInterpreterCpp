@@ -43,12 +43,12 @@ private:
     [[maybe_unused]] symbol_t symbol_;
 };
 
-class mal_int_t : public mal_t {
+class mal_num_t : public mal_t {
 public:
-    explicit mal_int_t(int num) : integer_ {num} {}
+    explicit mal_num_t(int num) : num_ {num} {}
 
 private:
-    [[maybe_unused]]  int64_t integer_;
+    [[maybe_unused]]  double num_;
 };
 
 class mal_vector_t : public mal_t {
@@ -67,6 +67,13 @@ public:
 
 private:
     std::vector<mal_t_ptr> vector_;
+};
+
+class mal_keyword : public mal_t {
+public:
+    explicit mal_keyword(std::string keyword) : keyword_ {keyword} {}
+private:
+    std::string keyword_;
 };
 
 class mal_string_t : public mal_t {
