@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "reader.h"
+#include "Reader.h"
 
 std::string READ (const std::string& in) {
     auto ast = in;
