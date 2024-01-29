@@ -29,10 +29,17 @@ int main() {
     std::string line;
 
     while(!std::cin.eof()) {
-        std::cout << "user> ";
+        std::cout << "\nuser> ";
 
         std::getline(std::cin, line);
 
-        std::cout << REP(line) << "\n";
+        std::string evaluated_line;
+        try{
+            evaluated_line = REP(line);
+        } catch (...) {
+            evaluated_line = "unbalanced";
+        }
+
+        std::cout << evaluated_line;
     }
 }

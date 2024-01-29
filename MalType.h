@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include <string>
 
 
@@ -25,6 +26,28 @@ struct MalList : MalType {
     std::vector<mal_t_ptr> mal_list_;
 };
 
+//======================================================
+struct MalVec : MalType {
+    MalVec() = default;
+
+    void add(mal_t_ptr& mal_t) {
+        mal_vec_.push_back(mal_t);
+    }
+
+    std::vector<mal_t_ptr> mal_vec_;
+};
+
+struct MalMap : MalType {
+    MalMap() = default;
+
+    void add(mal_t_ptr k, mal_t_ptr v) {
+        malmap_[k] = v;
+    }
+
+    std::unordered_map<mal_t_ptr, mal_t_ptr> malmap_;
+};
+//=====================================================
+
 
 struct MalNumber : MalType {
     explicit MalNumber(int number) : number_{ number } {}
@@ -45,6 +68,16 @@ struct MalString : MalType {
     std::string string_;
 };
 
+struct MalBool : MalType {
+    explicit MalBool(std::string token) : bool_ {token == "true"} {} 
+
+    bool bool_;
+};
+
+struct MalNil : MalType {
+    explicit MalNil(std::string nil) : nil_{nil} {}
+    std::string nil_;
+};
 
 
 #endif // MALTYPE_H_

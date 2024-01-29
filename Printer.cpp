@@ -11,6 +11,10 @@ std::string pr_str(mal_t_ptr mal_ptr) {
         result = symbol_ptr->symbol_;
     } else if (auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr); string_ptr != nullptr) {
         result = string_ptr->string_;
+    } else if (auto nil_ptr = dynamic_cast<MalNil*>(mal_raw_ptr); nil_ptr != nullptr) {
+        result = "nil";
+    } else if (auto bool_ptr = dynamic_cast<MalBool*>(mal_raw_ptr); bool_ptr != nullptr) {
+        result = (bool_ptr->bool_) ? "true" : "false";
     } else if (auto list_ptr = dynamic_cast<MalList*>(mal_raw_ptr); list_ptr != nullptr) {
         result += "(";
 

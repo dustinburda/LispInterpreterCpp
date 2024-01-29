@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <vector>
 #include <optional>
+#include <unordered_map>
+#include <stack>
 #include "MalType.h"
 
 using Token = std::string;
