@@ -27,6 +27,18 @@ std::string pr_str(mal_t_ptr mal_ptr) {
         }
 
         result += ")";
+    } else if (auto vec_ptr = dynamic_cast<MalVec*>(mal_raw_ptr); vec_ptr != nullptr) {
+        result += "[";
+
+        int elem_num { 0 };
+        for (auto elem : vec_ptr->mal_vec_) {
+            auto prefix = (elem_num == 0) ? "" : " ";
+            result += prefix + pr_str(elem);
+
+            elem_num++;
+        }
+
+        result += "]";
     }
 
     return result;

@@ -6,7 +6,7 @@ mal_t_ptr read_list(Reader& r) {
 
     mal_t_ptr s = std::make_shared<MalList>();
 
-    auto mal_list_ptr = dynamic_cast<MalList*>(s.get());
+    auto mal_list_ptr =  dynamic_cast<MalList*>(s.get());
     while(r.peek().value()[0] != ')') {
         auto mal_t_elem = read_form(r);
         if(mal_t_elem != nullptr)
@@ -14,6 +14,23 @@ mal_t_ptr read_list(Reader& r) {
     }
 
     r.next(); // ')'
+
+    return s;
+}
+
+mal_t_ptr read_vec(Reader& r) {
+    r.next(); // '['
+
+    mal_t_ptr s = std::make_shared<MalVec>();
+
+    auto mal_list_ptr =  dynamic_cast<MalVec*>(s.get());
+    while(r.peek().value()[0] != ']') {
+        auto mal_t_elem = read_form(r);
+        if(mal_t_elem != nullptr)
+            mal_list_ptr->add(mal_t_elem);
+    }
+
+    r.next(); // ']'
 
     return s;
 }
@@ -51,6 +68,9 @@ mal_t_ptr read_form(Reader& r) {
     switch (token.value()[0]) {
         case '(' :
             ret = read_list(r);
+            break;
+        case '[':
+            ret = read_vec(r);
             break;
         default:
             ret = read_atom(r);
