@@ -1,3 +1,6 @@
+#ifndef READER_H_
+#define READER_H_
+
 #include <regex>
 #include <cstdio>
 #include <vector>
@@ -10,7 +13,7 @@ static const std::regex lisp_regex { "[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^
 class Reader {
 public:
     Reader() = delete;
-    Reader(std::vector<Token> tokens) : tokens_{std::move(tokens)}, curr_pos_{0} {}
+    explicit Reader(std::vector<Token> tokens) : tokens_{std::move(tokens)}, curr_pos_{0} {}
 
     std::optional<Token> next() {
         if(curr_pos_ == tokens_.size()) {
@@ -23,7 +26,7 @@ public:
         return ret;
     }
 
-    std::optional<Token> peak() const {
+    std::optional<Token> peek() const {
         if(curr_pos_ == tokens_.size()) {
             return std::nullopt;
         }
@@ -31,10 +34,56 @@ public:
         return tokens_[curr_pos_];
     }
 
+    // Not copyable
+    Reader(const Reader& other) = delete;
+    Reader& operator=(const Reader& other) = delete;
+
+    // Note moveable
+    Reader(const Reader&& other) = delete;
+    Reader& operator=(const Reader&& other) = delete;
+
 private:
     std::vector<Token> tokens_;
     size_t curr_pos_;
 };
+
+
+static mal_t_ptr read_list(Reader& r) {
+    r.next(); // '('
+
+    mal_t_ptr s;
+
+    while(r.peek.value()[0] != ')') {
+        // make s push back this 
+        read_form(r);
+    }
+    
+    return s;
+}
+
+static mal_t_ptr read_atom(Reader& r) {
+    mal_t_ptr s;
+    // implement integers, symbols, strings, bools
+    return s;
+}
+
+static mal_t_ptr read_form(Reader& r) {
+
+    auto token = r.peek();
+
+    mal_t_ptr ret;
+
+    switch (token.value()[0]) {
+        case '(' :
+            ret = read_list(r);
+            break;
+        default:
+            ret = read_atom(r);
+    }
+
+    return ret;
+
+}
 
 static void tokenize(std::string& src, std::vector<Token>& tokens) {
     
@@ -61,4 +110,10 @@ static void read_str(std::string src) {
     tokenize(src, tokens);
 
     auto r = Reader { tokens };
+
+    read_form(r);
 }
+
+#endif // READER_H_
+
+

@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include "Reader.h"
+#include "Printer.h"
+
 
 std::string READ(std::string str) {
     return str;
