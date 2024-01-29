@@ -1,8 +1,5 @@
 #include <iostream>
 #include <string>
-#include "Reader.h"
-#include "Printer.h"
-
 
 std::string READ(std::string str) {
     return str;
@@ -22,8 +19,6 @@ std::string REP(std::string str) {
 
 
 int main() {
-    // read_str("  (1 2, 3,,,,),,     ");
-
     std::string line;
 
     while(!std::cin.eof()) {
