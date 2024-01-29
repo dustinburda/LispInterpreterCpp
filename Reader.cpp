@@ -1,4 +1,5 @@
 #include "Reader.h"
+#include "Printer.h"
 
 mal_t_ptr read_list(Reader& r) {
     r.next(); // '('
@@ -76,7 +77,7 @@ void tokenize(std::string& src, std::vector<Token>& tokens) {
 }
 
 
-void read_str(std::string src) {
+mal_t_ptr read_str(std::string src) {
     std::vector<Token> tokens;
     tokenize(src, tokens);
 
@@ -84,5 +85,5 @@ void read_str(std::string src) {
 
     auto ptr = read_form(r);
 
-    int x = 5;
+    return ptr;
 }

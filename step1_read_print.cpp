@@ -4,25 +4,27 @@
 #include "Printer.h"
 
 
-std::string READ(std::string str) {
-    return str;
-}
-
-std::string EVAL(std::string ast, std::string env) {
+mal_t_ptr READ(std::string str) {
+    auto ast = read_str(str);
     return ast;
 }
 
-std::string PRINT(std::string eval) {
-    return eval;
+mal_t_ptr EVAL(mal_t_ptr ast, std::string env) {
+    return ast;
+}
+
+std::string PRINT(mal_t_ptr eval) {
+    auto printed_ast =  pr_str(eval);
+    return printed_ast;
 }
 
 std::string REP(std::string str) {
-    return READ(EVAL(PRINT(str), ""));
+    return PRINT(std::move(EVAL(std::move(READ(str)), "")));
 }
 
 
 int main() {
-    // read_str("  (1 2, 3,,,,),,     ");
+     // read_str("  (  + 2   (*  3  4)  )      ");
 
     std::string line;
 

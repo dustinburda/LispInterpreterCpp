@@ -53,7 +53,7 @@ mal_t_ptr read_list(Reader& r);
 mal_t_ptr read_atom(Reader& r);
 mal_t_ptr read_form(Reader& r);
 void tokenize(std::string& src, std::vector<Token>& tokens);
-void read_str(std::string src);
+mal_t_ptr read_str(std::string src);
 
 #endif // READER_H_
 
