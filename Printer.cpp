@@ -4,56 +4,151 @@ std::string pr_str(mal_t_ptr mal_ptr) {
     std::string result;
 
     auto mal_raw_ptr = mal_ptr.get();
-
-    if(auto number_ptr = dynamic_cast<MalNumber*>(mal_raw_ptr); number_ptr != nullptr) {
-        result = std::to_string(number_ptr->number_);
-    } else if (auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr); symbol_ptr != nullptr) {
-        result = symbol_ptr->symbol_;
-    } else if (auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr); string_ptr != nullptr) {
-        result = string_ptr->string_;
-    } else if (auto nil_ptr = dynamic_cast<MalNil*>(mal_raw_ptr); nil_ptr != nullptr) {
-        result = "nil";
-    } else if (auto bool_ptr = dynamic_cast<MalBool*>(mal_raw_ptr); bool_ptr != nullptr) {
-        result = (bool_ptr->bool_) ? "true" : "false";
-    } else if (auto list_ptr = dynamic_cast<MalList*>(mal_raw_ptr); list_ptr != nullptr) {
-        result += "(";
-
-        int elem_num { 0 };
-        for (auto elem : list_ptr->mal_list_) {
-            auto prefix = (elem_num == 0) ? "" : " ";
-            result += prefix + pr_str(elem);
-
-            elem_num++;
+    switch (mal_raw_ptr->get_type()) {
+        case Mal_T::Number:
+        {
+            auto number_ptr = dynamic_cast<MalNumber*>(mal_raw_ptr);
+            result = std::to_string(number_ptr->number_);
+            break;
         }
-
-        result += ")";
-    } else if (auto vec_ptr = dynamic_cast<MalVec*>(mal_raw_ptr); vec_ptr != nullptr) {
-        result += "[";
-
-        int elem_num { 0 };
-        for (auto elem : vec_ptr->mal_vec_) {
-            auto prefix = (elem_num == 0) ? "" : " ";
-            result += prefix + pr_str(elem);
-
-            elem_num++;
+        case Mal_T::Symbol:
+        {
+            auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr);
+            result = symbol_ptr->symbol_;
+            break;
         }
-
-        result += "]";
-    } else if (auto map_ptr = dynamic_cast<MalMap*>(mal_raw_ptr); map_ptr != nullptr) {
-        result += "{";
-
-         int elem_num { 0 };
-        for(auto [k, v] : map_ptr->malmap_) {
-            auto key = pr_str(k);
-            auto value = pr_str(v);
-            auto prefix = (elem_num == 0) ? "" : " ";
-            result += prefix + key + " " + value;
-
-            elem_num++;
+        case Mal_T::String:
+        {
+            auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr);
+            result = string_ptr->string_;
+            break;
         }
+        case Mal_T::Nil:
+        {
+            auto nil_ptr = dynamic_cast<MalNil*>(mal_raw_ptr);
+            result = "nil";
+            break;
+            }
+        case Mal_T::Bool:
+        {
+            auto bool_ptr = dynamic_cast<MalBool*>(mal_raw_ptr);
+            result = (bool_ptr->bool_) ? "true" : "false";
+            break;
+            }
+        case Mal_T::List:
+        {
+            auto list_ptr = dynamic_cast<MalList*>(mal_raw_ptr);
+            result += "(";
 
-        result += "}";
+            int elem_num { 0 };
+            for (auto elem : list_ptr->mal_list_) {
+                auto prefix = (elem_num == 0) ? "" : " ";
+                result += prefix + pr_str(elem);
+
+                elem_num++;
+            }
+
+            result += ")";
+            break;
+            }
+        case Mal_T::Vec:
+        {
+            auto vec_ptr = dynamic_cast<MalVec*>(mal_raw_ptr);
+            result += "[";
+
+            int elem_num { 0 };
+            for (auto elem : vec_ptr->mal_vec_) {
+                auto prefix = (elem_num == 0) ? "" : " ";
+                result += prefix + pr_str(elem);
+
+                elem_num++;
+            }
+
+            result += "]";
+            break;
+            }
+        case Mal_T::Map:
+        {
+            auto map_ptr = dynamic_cast<MalMap*>(mal_raw_ptr);
+            result += "{";
+
+            int elem_num { 0 };
+            for(auto [k, v] : map_ptr->malmap_) {
+                auto key = pr_str(k);
+                auto value = pr_str(v);
+                auto prefix = (elem_num == 0) ? "" : " ";
+                result += prefix + key + " " + value;
+
+                elem_num++;
+            }
+
+            result += "}";
+            break;
+        }
+        default:
+            throw std::logic_error("There should be no unimplemented types!");
     }
+    //=========================================================================================
+
+
+
+    // if(mal_raw_ptr->get_type() == Mal_T::Number) {
+    //     auto number_ptr = dynamic_cast<MalNumber*>(mal_raw_ptr);
+    //     result = std::to_string(number_ptr->number_);
+    // } else if (mal_raw_ptr->get_type() == Mal_T::Symbol) {
+    //     auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr);
+    //     result = symbol_ptr->symbol_;
+    // } else if (mal_raw_ptr->get_type() == Mal_T::String) {
+    //     auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr);
+    //     result = string_ptr->string_;
+    // } else if (mal_raw_ptr->get_type() == Mal_T::Nil) {
+    //     auto nil_ptr = dynamic_cast<MalNil*>(mal_raw_ptr);
+    //     result = "nil";
+    // } else if (mal_raw_ptr->get_type() == Mal_T::Bool) {
+    //     auto bool_ptr = dynamic_cast<MalBool*>(mal_raw_ptr);
+    //     result = (bool_ptr->bool_) ? "true" : "false";
+    // } else if (mal_raw_ptr->get_type() == Mal_T::List) {
+    //     auto list_ptr = dynamic_cast<MalList*>(mal_raw_ptr);
+    //     result += "(";
+
+    //     int elem_num { 0 };
+    //     for (auto elem : list_ptr->mal_list_) {
+    //         auto prefix = (elem_num == 0) ? "" : " ";
+    //         result += prefix + pr_str(elem);
+
+    //         elem_num++;
+    //     }
+
+    //     result += ")";
+    // } else if (mal_raw_ptr->get_type() == Mal_T::Vec) {
+    //     auto vec_ptr = dynamic_cast<MalVec*>(mal_raw_ptr);
+    //     result += "[";
+
+    //     int elem_num { 0 };
+    //     for (auto elem : vec_ptr->mal_vec_) {
+    //         auto prefix = (elem_num == 0) ? "" : " ";
+    //         result += prefix + pr_str(elem);
+
+    //         elem_num++;
+    //     }
+
+    //     result += "]";
+    // } else if (mal_raw_ptr->get_type() == Mal_T::Map) {
+    //     auto map_ptr = dynamic_cast<MalMap*>(mal_raw_ptr);
+    //     result += "{";
+
+    //      int elem_num { 0 };
+    //     for(auto [k, v] : map_ptr->malmap_) {
+    //         auto key = pr_str(k);
+    //         auto value = pr_str(v);
+    //         auto prefix = (elem_num == 0) ? "" : " ";
+    //         result += prefix + key + " " + value;
+
+    //         elem_num++;
+    //     }
+
+    //     result += "}";
+    // }
 
     return result;
 }
