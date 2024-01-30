@@ -26,7 +26,7 @@ struct MalList : MalType {
     std::vector<mal_t_ptr> mal_list_;
 };
 
-//======================================================
+
 struct MalVec : MalType {
     MalVec() = default;
 
@@ -36,7 +36,7 @@ struct MalVec : MalType {
 
     std::vector<mal_t_ptr> mal_vec_;
 };
-
+//======================================================
 struct MalMap : MalType {
     MalMap() = default;
 

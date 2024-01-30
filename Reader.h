@@ -53,6 +53,7 @@ private:
 
 mal_t_ptr read_list(Reader& r);
 mal_t_ptr read_vec(Reader& r);
+mal_t_ptr read_map(Reader& r);
 mal_t_ptr read_atom(Reader& r);
 mal_t_ptr read_form(Reader& r);
 void tokenize(std::string& src, std::vector<Token>& tokens);

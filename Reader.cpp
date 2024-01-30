@@ -35,6 +35,27 @@ mal_t_ptr read_vec(Reader& r) {
     return s;
 }
 
+mal_t_ptr read_map(Reader& r) {
+    r.next(); // '{'
+
+    mal_t_ptr s = std::make_shared<MalMap>();
+
+    auto mal_map_ptr = dynamic_cast<MalMap*>(s.get());
+
+    while(r.peek().value()[0] != '}') {
+        auto mal_t_k = read_form(r);
+        auto mal_t_v = read_form(r);
+        if(mal_t_k != nullptr && mal_t_v != nullptr)
+            mal_map_ptr->add(mal_t_k, mal_t_v);
+        else
+            throw std::logic_error("Every key must have a value!");
+    }
+
+    r.next(); // '}'
+
+    return s;
+}
+
 mal_t_ptr read_atom(Reader& r) {
     if(r.peek() == std::nullopt) {
         return nullptr;
@@ -71,6 +92,9 @@ mal_t_ptr read_form(Reader& r) {
             break;
         case '[':
             ret = read_vec(r);
+            break;
+        case '{':
+            ret = read_map(r);
             break;
         default:
             ret = read_atom(r);

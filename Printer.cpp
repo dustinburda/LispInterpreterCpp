@@ -39,6 +39,20 @@ std::string pr_str(mal_t_ptr mal_ptr) {
         }
 
         result += "]";
+    } else if (auto map_ptr = dynamic_cast<MalMap*>(mal_raw_ptr); map_ptr != nullptr) {
+        result += "{";
+
+         int elem_num { 0 };
+        for(auto [k, v] : map_ptr->malmap_) {
+            auto key = pr_str(k);
+            auto value = pr_str(v);
+            auto prefix = (elem_num == 0) ? "" : " ";
+            result += prefix + key + " " + value;
+
+            elem_num++;
+        }
+
+        result += "}";
     }
 
     return result;
