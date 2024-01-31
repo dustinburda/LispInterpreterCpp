@@ -3,8 +3,11 @@ CXXFLAGS = -std=c++20
 WARNINGS := -Wall -Wextra
 
 
-SOURCES = Reader.cpp Printer.cpp
-HEADERS = Reader.h Printer.h MalType.h
+SOURCES = Reader.cpp Printer.cpp Environment.cpp
+HEADERS = Reader.h Printer.h MalType.h Environment.h
+
+step3_env: step3_env.cpp ${SOURCES} ${HEADERS}
+	${CXX} ${CXXFLAGS} ${WARNINGS} step3_env.cpp ${SOURCES} -o step3_env
 
 step2_eval: step2_eval.cpp ${SOURCES} ${HEADERS}
 	${CXX} ${CXXFLAGS} ${WARNINGS} step2_eval.cpp ${SOURCES} -o step2_eval
