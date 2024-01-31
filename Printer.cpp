@@ -88,67 +88,6 @@ std::string pr_str(mal_t_ptr mal_ptr) {
         default:
             throw std::logic_error("There should be no unimplemented types!");
     }
-    //=========================================================================================
-
-
-
-    // if(mal_raw_ptr->get_type() == Mal_T::Number) {
-    //     auto number_ptr = dynamic_cast<MalNumber*>(mal_raw_ptr);
-    //     result = std::to_string(number_ptr->number_);
-    // } else if (mal_raw_ptr->get_type() == Mal_T::Symbol) {
-    //     auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr);
-    //     result = symbol_ptr->symbol_;
-    // } else if (mal_raw_ptr->get_type() == Mal_T::String) {
-    //     auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr);
-    //     result = string_ptr->string_;
-    // } else if (mal_raw_ptr->get_type() == Mal_T::Nil) {
-    //     auto nil_ptr = dynamic_cast<MalNil*>(mal_raw_ptr);
-    //     result = "nil";
-    // } else if (mal_raw_ptr->get_type() == Mal_T::Bool) {
-    //     auto bool_ptr = dynamic_cast<MalBool*>(mal_raw_ptr);
-    //     result = (bool_ptr->bool_) ? "true" : "false";
-    // } else if (mal_raw_ptr->get_type() == Mal_T::List) {
-    //     auto list_ptr = dynamic_cast<MalList*>(mal_raw_ptr);
-    //     result += "(";
-
-    //     int elem_num { 0 };
-    //     for (auto elem : list_ptr->mal_list_) {
-    //         auto prefix = (elem_num == 0) ? "" : " ";
-    //         result += prefix + pr_str(elem);
-
-    //         elem_num++;
-    //     }
-
-    //     result += ")";
-    // } else if (mal_raw_ptr->get_type() == Mal_T::Vec) {
-    //     auto vec_ptr = dynamic_cast<MalVec*>(mal_raw_ptr);
-    //     result += "[";
-
-    //     int elem_num { 0 };
-    //     for (auto elem : vec_ptr->mal_vec_) {
-    //         auto prefix = (elem_num == 0) ? "" : " ";
-    //         result += prefix + pr_str(elem);
-
-    //         elem_num++;
-    //     }
-
-    //     result += "]";
-    // } else if (mal_raw_ptr->get_type() == Mal_T::Map) {
-    //     auto map_ptr = dynamic_cast<MalMap*>(mal_raw_ptr);
-    //     result += "{";
-
-    //      int elem_num { 0 };
-    //     for(auto [k, v] : map_ptr->malmap_) {
-    //         auto key = pr_str(k);
-    //         auto value = pr_str(v);
-    //         auto prefix = (elem_num == 0) ? "" : " ";
-    //         result += prefix + key + " " + value;
-
-    //         elem_num++;
-    //     }
-
-    //     result += "}";
-    // }
-
+    
     return result;
 }

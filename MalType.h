@@ -100,7 +100,7 @@ struct MalFunction : MalType {
         for(int index = 0; auto mal_num_ptr : args) {
             auto num_ptr = dynamic_cast<MalNumber*>(mal_num_ptr.get());
             
-            if(num_ptr = nullptr)
+            if(num_ptr == nullptr)
                 throw std::logic_error("Must pass in a number!");
 
             if(index == 0) {
@@ -110,6 +110,8 @@ struct MalFunction : MalType {
             }
             index++;
         }
+
+        return result;
     }
 
     std::function<int(int, int)> fn;
