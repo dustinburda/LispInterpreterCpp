@@ -19,4 +19,4 @@ step0_repl: step0_repl.cpp
 	${CXX} ${CXXFLAGS} ${WARNING} step0_repl.cpp -o step0_repl
 
 clean:
-	rm -f step0_repl step1_read_print step2_eval
+	rm -f step0_repl step1_read_print step2_eval step3_env
