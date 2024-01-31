@@ -75,6 +75,10 @@ mal_t_ptr EVAL(mal_t_ptr ast, Environment& env) {
         }
 
         auto fn = dynamic_cast<MalFunction*>(evaluated_list_ptr->mal_list_[0].get());
+        
+        if(fn == nullptr)
+            return evaluated_list;
+        
         auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1, evaluated_list_ptr->mal_list_.end());
 
         int result = fn->apply_fn(remaining_args);
