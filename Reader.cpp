@@ -67,15 +67,16 @@ mal_t_ptr read_atom(Reader& r) {
 
     if( (curr_token.size() > 1 && curr_token[0] == '-' && std::isdigit(curr_token[1])) || std::isdigit(curr_token[0])) {
         s = std::make_shared<MalNumber>(std::stoi(curr_token));
-    } else if (curr_token == "+" || curr_token == "-" || curr_token == "*" || curr_token == "/") {
-        s = std::make_shared<MalSymbol>(curr_token);
     } else if (curr_token == "nil") {
         s = std::make_shared<MalNil>(curr_token);
     } else if (curr_token == "true" || curr_token == "false") {
         s = std::make_shared<MalBool>(curr_token);
     } else {
-        s = std::make_shared<MalString>(curr_token);
+        s = std::make_shared<MalSymbol>(curr_token);
     }
+//    } else {
+//        s = std::make_shared<MalString>(curr_token);
+//    }
 
     return s;
 }

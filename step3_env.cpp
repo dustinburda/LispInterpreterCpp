@@ -6,21 +6,17 @@
 #include "Reader.h"
 #include "Printer.h"
 #include "MalType.h"
+#include "Environment.h"
 
-using Environment = std::unordered_map<std::string, mal_t_ptr>;
-
-Environment repl_env = { {"*", std::make_shared<MalFunction>(std::multiplies<int>())} ,
-                         {"/", std::make_shared<MalFunction>(std::divides<int>())},
-                         {"+", std::make_shared<MalFunction>(std::plus<int>())},
-                         {"-", std::make_shared<MalFunction>(std::minus<int>())}  };
+Env repl_env { nullptr };
 
 mal_t_ptr READ(std::string str);
-mal_t_ptr EVAL(mal_t_ptr ast, Environment& env);
+mal_t_ptr EVAL(mal_t_ptr ast, Env& env);
 std::string PRINT(mal_t_ptr eval);
 std::string REP(std::string str);
 
 
-mal_t_ptr eval_ast(mal_t_ptr ast, Environment& env) {
+mal_t_ptr eval_ast(mal_t_ptr ast, Env& env) {
     mal_t_ptr s;
     switch (ast->get_type()) {
         case Mal_T::Symbol:
@@ -28,11 +24,7 @@ mal_t_ptr eval_ast(mal_t_ptr ast, Environment& env) {
             auto symbol_ptr = dynamic_cast<MalSymbol*>(ast.get());
             std::string symbol = symbol_ptr->symbol_;
 
-            if(env.count(symbol) == 0) {
-                throw std::logic_error("Symbol must have an associated function!");
-            }
-
-            s = env[symbol];
+            s = env.get(symbol);
             break;
         }
         case Mal_T::List:
@@ -47,8 +39,8 @@ mal_t_ptr eval_ast(mal_t_ptr ast, Environment& env) {
 
             s = new_list;
             break;
-        } 
-        default: 
+        }
+        default:
         {
             s = ast;
         }
@@ -61,29 +53,57 @@ mal_t_ptr READ(std::string str) {
     return ast;
 }
 
-mal_t_ptr EVAL(mal_t_ptr ast, Environment& env) {
+mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
     if(ast->get_type() != Mal_T::List) {
         return eval_ast(ast, env);
     } else if (auto list_ptr = dynamic_cast<MalList*>(ast.get()); list_ptr->mal_list_.size() == 0) {
         return ast;
     } else {
-        mal_t_ptr evaluated_list = eval_ast(ast, env);
-        auto evaluated_list_ptr = dynamic_cast<MalList*>(evaluated_list.get());
+        // printf("Evaluating a list.... \n");
 
+        // TODO: create a separate list_ptr here
         if(list_ptr == nullptr) {
             throw std::logic_error("list_ptr must point to a list!");
         }
 
+        auto symbol = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[0].get());
+        if(symbol != nullptr) {
+            // printf("First element is a symbol! \n");
+            if(symbol->symbol_ == "def!") {
+
+                auto key = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[1].get())->symbol_;
+                auto val = EVAL(list_ptr->mal_list_[2], env);
+                return env.set(key, val);
+            } else if (symbol->symbol_ == "let*") {
+                auto let_env = Env { &env };
+
+                auto binding_list = dynamic_cast<MalList*>(list_ptr->mal_list_[1].get());
+                if(binding_list == nullptr || (binding_list->mal_list_.size() % 2 != 0))
+                    throw std::logic_error("second parameter of let* statement must be a list of even size!");
+
+                for(int i = 0; i < binding_list->mal_list_.size(); i+= 2) {
+                    auto first = dynamic_cast<MalSymbol*>(binding_list->mal_list_[i].get());
+                    mal_t_ptr second = EVAL(binding_list->mal_list_[i+1], let_env);
+
+                    let_env.set(first->symbol_, second);
+                }
+
+                return EVAL(list_ptr->mal_list_[2], let_env);
+            }
+        }
+
+        mal_t_ptr evaluated_list = eval_ast(ast, env);
+        auto evaluated_list_ptr = dynamic_cast<MalList*>(evaluated_list.get());
+        // Get first element as function
         auto fn = dynamic_cast<MalFunction*>(evaluated_list_ptr->mal_list_[0].get());
-        
         if(fn == nullptr)
-            return evaluated_list;
-        
+            return evaluated_list; // TODO return this by default
+        //Apply first element to remainder of list
+        // printf("HELLO! \n");
         auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1, evaluated_list_ptr->mal_list_.end());
-
         int result = fn->apply_fn(remaining_args);
-
         auto num_ptr = std::make_shared<MalNumber>(result);
+
         return num_ptr;
     }
 }
@@ -94,12 +114,18 @@ std::string PRINT(mal_t_ptr eval) {
 }
 
 std::string REP(std::string str) {
+    // TODO, remove std::move here to allow copy elision
     return PRINT(std::move(EVAL(std::move(READ(str)), repl_env)));
 }
 
 
 int main() {
-     // read_str("  (  + 2   (*  3  4)  )      ");
+    repl_env.set("*", std::make_shared<MalFunction>(std::multiplies<int>()));
+    repl_env.set("/", std::make_shared<MalFunction>(std::divides<int>()));
+    repl_env.set("+", std::make_shared<MalFunction>(std::plus<int>()));
+    repl_env.set("-", std::make_shared<MalFunction>(std::minus<int>()));
+    repl_env.set("def!", std::make_shared<MalSymbol>("def!"));
+    repl_env.set("let*", std::make_shared<MalSymbol>("let*"));
 
     std::string line;
 
