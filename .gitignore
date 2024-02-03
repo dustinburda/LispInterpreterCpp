@@ -3,6 +3,7 @@ step0_repl
 step1_read_print
 step2_eval
 step2_copy.cpp
+step3_env
 todo.txt
-CMakeLists.txt
+cmake-build-debug
 src
