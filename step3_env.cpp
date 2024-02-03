@@ -96,15 +96,17 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
         auto evaluated_list_ptr = dynamic_cast<MalList*>(evaluated_list.get());
         // Get first element as function
         auto fn = dynamic_cast<MalFunction*>(evaluated_list_ptr->mal_list_[0].get());
-        if(fn == nullptr)
-            return evaluated_list; // TODO return this by default
-        //Apply first element to remainder of list
-        // printf("HELLO! \n");
-        auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1, evaluated_list_ptr->mal_list_.end());
-        int result = fn->apply_fn(remaining_args);
-        auto num_ptr = std::make_shared<MalNumber>(result);
+        if(fn != nullptr) {
 
-        return num_ptr;
+            auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1,
+                                                         evaluated_list_ptr->mal_list_.end());
+            int result = fn->apply_fn(remaining_args);
+            auto num_ptr = std::make_shared<MalNumber>(result);
+
+            return num_ptr;
+        }
+
+        return evaluated_list; // TODO return this by default
     }
 }
 
