@@ -1,3 +1,6 @@
+//
+// Created by Dustin Burda on 2/3/24.
+//
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -142,7 +145,7 @@ int main() {
         } catch(SymbolNotFoundException& e) {
             evaluated_line = e.what();
         } catch (...) {
-            evaluated_line = "abc not found"; // TODO: make custom exception
+            evaluated_line = "GENERIC ERROR"; // TODO: make custom exception
         }
 
         std::cout << evaluated_line;

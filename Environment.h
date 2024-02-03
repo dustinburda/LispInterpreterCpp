@@ -9,6 +9,19 @@ class Env;
 
 using env_ptr = std::shared_ptr<Env>;
 
+class SymbolNotFoundException : public std::exception {
+public:
+    explicit SymbolNotFoundException(const std::string& symbol) : error_message{symbol + " not found"} {}
+
+    const char* what() const noexcept override {
+        return error_message.c_str();
+    }
+private:
+    std::string error_message;
+};
+
+
+
 class Env {
 public:
     explicit Env(Env* outer) : outer_ {outer} {}
@@ -32,7 +45,7 @@ public:
         auto env = find(key);
 
         if(env == nullptr) {
-            throw std::logic_error ("Value not found!");
+            throw SymbolNotFoundException(key);
         }
 
         return env->data_[key];
