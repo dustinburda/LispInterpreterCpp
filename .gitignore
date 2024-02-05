@@ -4,7 +4,6 @@ step1_read_print
 step2_eval
 step2_copy.cpp
 step3_env
-todo.txt
-cmake-build-debug
 src
 todo.txt
+cmake-build-debug
