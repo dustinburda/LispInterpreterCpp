@@ -20,7 +20,8 @@ enum class Mal_T {
     String,
     Bool,
     Nil,
-    Function
+    Function,
+    Keyword
 };
 
 struct MalType {
@@ -117,5 +118,9 @@ struct MalFunction : MalType {
     std::function<int(int, int)> fn;
 };
 
+struct MalKeyword : MalType {
+    explicit MalKeyword(std::string keyword) : MalType { Mal_T::Keyword }, keyword_ { keyword } {}
+    std::string keyword_;
+};
 
 #endif // MALTYPE_H_

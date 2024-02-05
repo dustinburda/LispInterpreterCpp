@@ -67,6 +67,10 @@ mal_t_ptr read_atom(Reader& r) {
 
     if( (curr_token.size() > 1 && curr_token[0] == '-' && std::isdigit(curr_token[1])) || std::isdigit(curr_token[0])) {
         s = std::make_shared<MalNumber>(std::stoi(curr_token));
+    } else if (curr_token[0] == ':') {
+        s = std::make_shared<MalKeyword>(curr_token.substr(1, curr_token.size() - 1));
+    } else if (curr_token[0] == '"' && curr_token[curr_token.size() - 1] == '"') {
+        s = std::make_shared<MalString>(curr_token.substr(1, curr_token.size() - 2));
     } else if (curr_token == "nil") {
         s = std::make_shared<MalNil>(curr_token);
     } else if (curr_token == "true" || curr_token == "false") {
@@ -74,9 +78,6 @@ mal_t_ptr read_atom(Reader& r) {
     } else {
         s = std::make_shared<MalSymbol>(curr_token);
     }
-//    } else {
-//        s = std::make_shared<MalString>(curr_token);
-//    }
 
     return s;
 }
@@ -126,14 +127,19 @@ void tokenize(std::string& src, std::vector<Token>& tokens) {
 }
 
 
-
-static bool is_balanced(std::string& src) {
-    std::stack<char> s;
-    std::unordered_map<char, char> m = { {'}', '{'}, {')', '(' }, {']', '['} };
-
+static bool is_quote_balanced(std::string& src) {
     bool in_quote = false;
     int num_quote_symbols = 0;
-    for (auto char_elem : src) {
+    for(int i = 0; i < src.size(); i++) {
+        char char_elem = src[i];
+        if(i < src.size() - 1 && char_elem == '\\' && (src[i+1] == '\"' || src[i+1] == '\\')) {
+            i += 1;
+            continue;
+        }
+
+        if(char_elem == ';' && !in_quote) {
+            break;
+        }
         if(in_quote) {
             if(char_elem == '"'){
                 in_quote = false;
@@ -147,6 +153,37 @@ static bool is_balanced(std::string& src) {
             num_quote_symbols++;
             continue;
         }
+    }
+
+    return num_quote_symbols % 2 == 0;
+}
+
+static bool is_balanced(std::string& src) {
+    if(!is_quote_balanced(src)) {
+        return false;
+    }
+
+
+    std::stack<char> s;
+    std::unordered_map<char, char> m = { {'}', '{'}, {')', '(' }, {']', '['} };
+    bool in_quote = false;
+    for (auto char_elem : src) {
+
+        if(char_elem == ';' && !in_quote) {
+            break;
+        }
+        if(in_quote) {
+            if(char_elem == '"'){
+                in_quote = false;
+            }
+            continue;
+        }
+
+        if(char_elem == '"') {
+            in_quote = true;
+            continue;
+        }
+
 
         if(char_elem == '{' || char_elem == '(' || char_elem == '[') {
             s.push(char_elem);
@@ -161,7 +198,7 @@ static bool is_balanced(std::string& src) {
         }
     }
 
-    return s.empty() && (num_quote_symbols % 2 == 0);
+    return s.empty();
 }
 
 

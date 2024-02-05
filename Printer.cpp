@@ -16,11 +16,16 @@ std::string pr_str(mal_t_ptr mal_ptr) {
             auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr);
             result = symbol_ptr->symbol_;
             break;
+        } case Mal_T::Keyword:
+        {
+            auto kw_ptr = dynamic_cast<MalKeyword*>(mal_raw_ptr);
+            result = ":" + kw_ptr->keyword_;
+            break;
         }
         case Mal_T::String:
         {
             auto string_ptr = dynamic_cast<MalString*>(mal_raw_ptr);
-            result = string_ptr->string_;
+            result = "\"" + string_ptr->string_ + "\"";
             break;
         }
         case Mal_T::Nil:
