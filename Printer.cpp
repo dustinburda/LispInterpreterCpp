@@ -11,6 +11,24 @@ std::string pr_str(mal_t_ptr mal_ptr) {
             result = std::to_string(number_ptr->number_);
             break;
         }
+        case Mal_T::Quote:
+        {
+            auto quote_ptr = dynamic_cast<MalQuote*>(mal_raw_ptr);
+            auto quote_str = quote_ptr->quote_symbol_;
+
+            if (quote_str == "\'") {
+                result = "quote";
+            } else if (quote_str == "`") {
+                result = "quasiquote";
+            } else if (quote_str == "~") {
+                result = "unquote";
+            } else if (quote_str == "~@") {
+                result = "splice-unquote";
+            } else if (quote_str == "@") {
+                result = "deref";
+            }
+            break;
+        }
         case Mal_T::Symbol:
         {
             auto symbol_ptr = dynamic_cast<MalSymbol*>(mal_raw_ptr);
@@ -18,6 +36,7 @@ std::string pr_str(mal_t_ptr mal_ptr) {
             break;
         } case Mal_T::Keyword:
         {
+            // TODO: do we need this?
             auto kw_ptr = dynamic_cast<MalKeyword*>(mal_raw_ptr);
             result = ":" + kw_ptr->keyword_;
             break;

@@ -1,6 +1,26 @@
 #include "Reader.h"
 #include "Printer.h"
 
+mal_t_ptr read_quote(Reader& r, const std::string& quote_str) {
+
+    mal_t_ptr s = std::make_shared<MalList>();
+
+    auto mal_list_ptr =  dynamic_cast<MalList*>(s.get());
+
+    mal_t_ptr quote_ptr = std::make_shared<MalQuote>(quote_str);
+    mal_list_ptr->add(quote_ptr);
+    r.next(); //quote token
+
+    while(r.peek() != std::nullopt) {
+        auto mal_t_elem = read_form(r);
+        if(mal_t_elem != nullptr)
+            mal_list_ptr->add(mal_t_elem);
+    }
+
+
+    return s;
+}
+
 mal_t_ptr read_list(Reader& r) {
     r.next(); // '('
 
@@ -88,20 +108,19 @@ mal_t_ptr read_form(Reader& r) {
 
     mal_t_ptr ret;
 
-    switch (token.value()[0]) {
-        case '(' :
+        if (token.value()[0] == '(' ) {
             ret = read_list(r);
-            break;
-        case '[':
+        } else if (token.value()[0] == '[') {
             ret = read_vec(r);
-            break;
-        case '{':
+        } else if(token.value()[0] ==  '{') {
             ret = read_map(r);
-            break;
-        default:
+        } else if(token.value().substr(0, 2) == "~@") {
+            ret = read_quote(r, token.value().substr(0, 2));
+        } else if (token.value()[0] == '\'' || token.value()[0] == '`' || token.value()[0] == '~' || token.value()[0] == '@') {
+            ret = read_quote(r, std::string(1, token.value()[0]));
+        } else {
             ret = read_atom(r);
-    }
-
+        }
     return ret;
 
 }
