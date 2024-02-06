@@ -1,3 +1,6 @@
+//
+// Created by advil on 2/5/24.
+//
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -150,6 +153,13 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
     } else if (auto list_ptr = dynamic_cast<MalList*>(ast.get()); list_ptr->mal_list_.size() == 0) {
         return ast;
     } else {
+        // printf("Evaluating a list.... \n");
+
+        // TODO: create a separate list_ptr here
+        if(list_ptr == nullptr) {
+            throw std::logic_error("list_ptr must point to a list!");
+        }
+
         auto symbol = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[0].get());
         if(symbol != nullptr) {
             // printf("First element is a symbol! \n");

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include <functional>
+#include <stdexcept>
 
 
 struct MalType;
@@ -92,31 +93,14 @@ struct MalNil : MalType {
     std::string nil_;
 };
 
-// TODO: may have to apply a template later
 struct MalFunction : MalType {
-    MalFunction(std::function<int(int, int)> f) : MalType {Mal_T::Function}, fn { f } {}
+    MalFunction(std::function<mal_t_ptr(std::vector<mal_t_ptr>)>f) : MalType {Mal_T::Function}, fn { f } {}
 
-    int apply_fn(std::vector<mal_t_ptr> args) {
-        int result = 0;
-
-        for(int index = 0; auto mal_num_ptr : args) {
-            auto num_ptr = dynamic_cast<MalNumber*>(mal_num_ptr.get());
-            
-            if(num_ptr == nullptr)
-                throw std::logic_error("Must pass in a number!");
-
-            if(index == 0) {
-                result = num_ptr->number_; 
-            } else {
-                result = fn(result, num_ptr->number_);
-            }
-            index++;
-        }
-
-        return result;
+    mal_t_ptr apply_fn(std::vector<mal_t_ptr> args) {
+        return fn(args);
     }
 
-    std::function<int(int, int)> fn;
+    std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn;
 };
 
 struct MalKeyword : MalType {

@@ -9,10 +9,76 @@
 
 using Environment = std::unordered_map<std::string, mal_t_ptr>;
 
-Environment repl_env = { {"*", std::make_shared<MalFunction>(std::multiplies<int>())} ,
-                         {"/", std::make_shared<MalFunction>(std::divides<int>())},
-                         {"+", std::make_shared<MalFunction>(std::plus<int>())},
-                         {"-", std::make_shared<MalFunction>(std::minus<int>())}  };
+std::function<mal_t_ptr(std::vector<mal_t_ptr>)> plus = [](auto args) {
+    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
+
+    int index = 0;
+    for(auto arg : args) {
+        if(index == 0) {
+            index++;
+            continue;
+        }
+        result += dynamic_cast<MalNumber*>(arg.get())->number_;
+        index++;
+    }
+
+    return std::make_shared<MalNumber>(result);
+};
+
+
+std::function<mal_t_ptr(std::vector<mal_t_ptr>)> minus = [](auto args) {
+    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
+
+    int index = 0;
+    for(auto arg : args) {
+        if(index == 0) {
+            index++;
+            continue;
+        }
+        result -= dynamic_cast<MalNumber*>(arg.get())->number_;
+        index++;
+    }
+
+    return std::make_shared<MalNumber>(result);
+};
+
+std::function<mal_t_ptr(std::vector<mal_t_ptr>)> multiply = [](auto args) {
+    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
+
+    int index = 0;
+    for(auto arg : args) {
+        if(index == 0) {
+            index++;
+            continue;
+        }
+        result *= dynamic_cast<MalNumber*>(arg.get())->number_;
+        index++;
+    }
+
+    return std::make_shared<MalNumber>(result);
+};
+
+std::function<mal_t_ptr(std::vector<mal_t_ptr>)> divide = [](auto args) {
+    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
+
+    int index = 0;
+    for(auto arg : args) {
+        if(index == 0) {
+            index++;
+            continue;
+        }
+        result /= dynamic_cast<MalNumber*>(arg.get())->number_;
+        index++;
+    }
+
+    return std::make_shared<MalNumber>(result);
+};
+
+
+Environment repl_env = { {"*", std::make_shared<MalFunction>(multiply)} ,
+                         {"/", std::make_shared<MalFunction>(divide)},
+                         {"+", std::make_shared<MalFunction>(plus)},
+                         {"-", std::make_shared<MalFunction>(minus)}  };
 
 mal_t_ptr READ(std::string str);
 mal_t_ptr EVAL(mal_t_ptr ast, Environment& env);
@@ -47,7 +113,33 @@ mal_t_ptr eval_ast(mal_t_ptr ast, Environment& env) {
 
             s = new_list;
             break;
-        } 
+        }
+        case Mal_T::Vec:
+        {
+            auto vec_ptr = dynamic_cast<MalVec*>(ast.get());
+
+            auto new_vec = std::make_shared<MalVec>();
+            for(auto& elem :vec_ptr->mal_vec_) {
+                mal_t_ptr evaluated_list_elem = EVAL(elem, env);
+                new_vec->add(evaluated_list_elem);
+            }
+
+            s = new_vec;
+            break;
+        }
+        case Mal_T::Map:
+        {
+            auto map_ptr = dynamic_cast<MalMap*>(ast.get());
+
+            auto new_map = std::make_shared<MalMap>();
+            for(auto [k, v] : map_ptr->malmap_) {
+                auto evaluated_val = EVAL(v, env);
+                new_map->add(k, evaluated_val);
+            }
+
+            s = new_map;
+            break;
+        }
         default: 
         {
             s = ast;
@@ -64,27 +156,22 @@ mal_t_ptr READ(std::string str) {
 mal_t_ptr EVAL(mal_t_ptr ast, Environment& env) {
     if(ast->get_type() != Mal_T::List) {
         return eval_ast(ast, env);
-    } else if (auto list_ptr = dynamic_cast<MalList*>(ast.get()); list_ptr->mal_list_.size() == 0) {
+    } else if (auto list_ptr = dynamic_cast<MalList*>(ast.get()); list_ptr && list_ptr->mal_list_.size() == 0) {
         return ast;
     } else {
         mal_t_ptr evaluated_list = eval_ast(ast, env);
         auto evaluated_list_ptr = dynamic_cast<MalList*>(evaluated_list.get());
 
-        if(list_ptr == nullptr) {
-            throw std::logic_error("list_ptr must point to a list!");
+        auto fn = dynamic_cast<MalFunction*>(evaluated_list_ptr->mal_list_[0].get());
+        if(fn != nullptr) {
+            auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1,
+                                                         evaluated_list_ptr->mal_list_.end());
+
+            auto num_ptr = fn->apply_fn(remaining_args);
+            return num_ptr;
         }
 
-        auto fn = dynamic_cast<MalFunction*>(evaluated_list_ptr->mal_list_[0].get());
-        
-        if(fn == nullptr)
-            return evaluated_list;
-        
-        auto remaining_args = std::vector<mal_t_ptr>(evaluated_list_ptr->mal_list_.begin() + 1, evaluated_list_ptr->mal_list_.end());
-
-        int result = fn->apply_fn(remaining_args);
-
-        auto num_ptr = std::make_shared<MalNumber>(result);
-        return num_ptr;
+        return evaluated_list;
     }
 }
 
