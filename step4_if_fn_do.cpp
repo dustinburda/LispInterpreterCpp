@@ -10,73 +10,10 @@
 #include "Printer.h"
 #include "MalType.h"
 #include "Environment.h"
+#include "Core.h"
 
-Env repl_env { nullptr };
+Env repl_env { nullptr, {}, {} };
 
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> plus = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result += dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> minus = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result -= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> multiply = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result *= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> divide = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result /= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
 
 mal_t_ptr READ(std::string str);
 mal_t_ptr EVAL(mal_t_ptr ast, Env& env);
@@ -153,24 +90,19 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
     } else if (auto list_ptr = dynamic_cast<MalList*>(ast.get()); list_ptr->mal_list_.size() == 0) {
         return ast;
     } else {
-        // printf("Evaluating a list.... \n");
-
-        // TODO: create a separate list_ptr here
-        if(list_ptr == nullptr) {
-            throw std::logic_error("list_ptr must point to a list!");
-        }
-
         auto symbol = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[0].get());
         if(symbol != nullptr) {
             // printf("First element is a symbol! \n");
             if(symbol->symbol_ == "def!") {
-
+                // DEF SYMBOL
                 auto key = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[1].get())->symbol_;
                 auto val = EVAL(list_ptr->mal_list_[2], env);
                 return env.set(key, val);
             } else if (symbol->symbol_ == "let*") {
-                auto let_env = Env { &env };
+                // LET SYMBOL
+                auto let_env = Env { &env, {}, {} };
 
+                // LET SYMBOL - LIST SUPPORT
                 auto binding_list = dynamic_cast<MalList*>(list_ptr->mal_list_[1].get());
                 if(binding_list != nullptr) {
                     if(binding_list->mal_list_.size() % 2 != 0)
@@ -186,6 +118,8 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                     return EVAL(list_ptr->mal_list_[2], let_env);
                 }
 
+
+                // LET SYMBOL - VEC SUPPORT
                 auto binding_vec = dynamic_cast<MalVec*>(list_ptr->mal_list_[1].get());
                 if(binding_vec != nullptr) {
                     if(binding_vec->mal_vec_.size() % 2 != 0)
@@ -235,10 +169,11 @@ std::string REP(std::string str) {
 
 
 int main() {
-    repl_env.set("*", std::make_shared<MalFunction>(multiply));
-    repl_env.set("/", std::make_shared<MalFunction>(divide));
-    repl_env.set("+", std::make_shared<MalFunction>(plus));
-    repl_env.set("-", std::make_shared<MalFunction>(minus));
+    Core c;
+
+    for(auto& [k, v] : c.ns()) {
+        repl_env.set(k, v);
+    }
     repl_env.set("def!", std::make_shared<MalSymbol>("def!"));
     repl_env.set("let*", std::make_shared<MalSymbol>("let*"));
 
@@ -252,10 +187,11 @@ int main() {
         std::string evaluated_line;
         try{
             evaluated_line = REP(line);
+            // TODO: make more custom exceptions
         } catch(SymbolNotFoundException& e) {
             evaluated_line = e.what();
         } catch (...) {
-            evaluated_line = "abc not found"; // TODO: make custom exception
+            evaluated_line = "Generic Error";
         }
 
         std::cout << evaluated_line;

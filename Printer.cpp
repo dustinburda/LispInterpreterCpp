@@ -109,6 +109,11 @@ std::string pr_str(mal_t_ptr mal_ptr) {
             result += "}";
             break;
         }
+        case Mal_T::Function:
+        {
+            result = "#<function>";
+            break;
+        }
         default:
             throw std::logic_error("There should be no unimplemented types!");
     }

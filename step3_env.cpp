@@ -7,73 +7,9 @@
 #include "Printer.h"
 #include "MalType.h"
 #include "Environment.h"
+#include "Core.h"
 
-Env repl_env { nullptr };
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> plus = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result += dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> minus = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result -= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> multiply = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result *= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
-
-std::function<mal_t_ptr(std::vector<mal_t_ptr>)> divide = [](auto args) {
-    int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
-
-    int index = 0;
-    for(auto arg : args) {
-        if(index == 0) {
-            index++;
-            continue;
-        }
-        result /= dynamic_cast<MalNumber*>(arg.get())->number_;
-        index++;
-    }
-
-    return std::make_shared<MalNumber>(result);
-};
+Env repl_env { nullptr, {}, {} };
 
 mal_t_ptr READ(std::string str);
 mal_t_ptr EVAL(mal_t_ptr ast, Env& env);
@@ -154,13 +90,15 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
         if(symbol != nullptr) {
             // printf("First element is a symbol! \n");
             if(symbol->symbol_ == "def!") {
-
+                // DEF SYMBOL
                 auto key = dynamic_cast<MalSymbol*>(list_ptr->mal_list_[1].get())->symbol_;
                 auto val = EVAL(list_ptr->mal_list_[2], env);
                 return env.set(key, val);
             } else if (symbol->symbol_ == "let*") {
-                auto let_env = Env { &env };
+                // LET SYMBOL
+                auto let_env = Env { &env, {}, {} };
 
+                // LET SYMBOL - LIST SUPPORT
                 auto binding_list = dynamic_cast<MalList*>(list_ptr->mal_list_[1].get());
                 if(binding_list != nullptr) {
                     if(binding_list->mal_list_.size() % 2 != 0)
@@ -176,6 +114,8 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                     return EVAL(list_ptr->mal_list_[2], let_env);
                 }
 
+                
+                // LET SYMBOL - VEC SUPPORT
                 auto binding_vec = dynamic_cast<MalVec*>(list_ptr->mal_list_[1].get());
                 if(binding_vec != nullptr) {
                     if(binding_vec->mal_vec_.size() % 2 != 0)
