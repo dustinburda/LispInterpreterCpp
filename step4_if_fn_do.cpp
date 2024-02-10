@@ -117,7 +117,7 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
 
                     return EVAL(list_ptr->mal_list_[2], let_env);
                 }
-
+                // TODO: CODE REUSE BETWEEN VECTOR AND LIST, REFACTOR
 
                 // LET SYMBOL - VEC SUPPORT
                 auto binding_vec = dynamic_cast<MalVec*>(list_ptr->mal_list_[1].get());
@@ -134,9 +134,40 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
 
                     return EVAL(list_ptr->mal_list_[2], let_env);
                 }
+            } else if (symbol->symbol_ == "do") {
+                auto new_list_ptr = std::make_shared<MalList>();
+
+                for(auto elem : list_ptr->mal_list_) {
+                    auto evaluated_elem = EVAL(elem, env);
+                    new_list_ptr->add(evaluated_elem);
+                }
+
+                return new_list_ptr->mal_list_.back();
+            } else if(symbol->symbol_ == "if") {
+                auto condition_ptr = list_ptr->mal_list_[1];
+                auto evaluated_condition_ptr = EVAL(condition_ptr, env);
+
+                bool is_nil_or_false = (dynamic_cast<MalNil*>(evaluated_condition_ptr.get()) != nullptr)
+                                     || (dynamic_cast<MalBool*>(evaluated_condition_ptr.get()) != nullptr && !dynamic_cast<MalBool*>(evaluated_condition_ptr.get())->bool_);
 
 
+                mal_t_ptr result;
+                if(!is_nil_or_false) {
+                    result = EVAL(list_ptr->mal_list_[2], env);
+                } else {
+                    result = EVAL(list_ptr->mal_list_[3], env);
+                }
 
+                return result;
+
+            } else if(symbol->symbol_ == "fn*") {
+                std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn = [&env](std::vector<mal_t_ptr> args) {
+                    // TODO: change the body of this function
+                    mal_t_ptr result;
+                    return result;
+                };
+
+                return std::make_shared<MalFunction>(fn);
             }
         }
 
