@@ -74,50 +74,77 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> divide = [](auto args) {
     return std::make_shared<MalNumber>(result);
 };
 
-//TODO implement this
-static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> list = [](auto args) {
+static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> prn = [](auto args) {
+    // TODO: implement
     mal_t_ptr s;
     return s;
+};
+
+static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> list = [](auto args) {
+    auto list_ptr = std::make_shared<MalList>();
+
+    for(auto elem : args) {
+        list_ptr->add(elem);
+    }
+
+    return list_ptr;
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> is_list = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    bool is_list_ = (dynamic_cast<MalList*>(args[0].get()) != nullptr);
+
+    return std::make_shared<MalBool>(is_list_);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> is_empty = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto list_ptr = dynamic_cast<MalList*>(args[0].get());
+    bool is_empty = list_ptr->mal_list_.empty();
+
+    return std::make_shared<MalBool>(is_empty);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> count = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto list_ptr = dynamic_cast<MalList*>(args[0].get());
+    size_t count = list_ptr->mal_list_.size();
+
+    return std::make_shared<MalNumber>(count);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> eq = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    if(args[0]->get_type() != args[1]->get_type()) {
+        return std::make_shared<MalBool>(false);
+    }
+
+    // TODO: EQUALITY
+    return std::make_shared<MalBool>(false);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> l = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto num1_ptr = dynamic_cast<MalNumber*>(args[0].get());
+    auto num2_ptr = dynamic_cast<MalNumber*>(args[1].get());
+
+    return std::make_shared<MalBool>(num1_ptr->number_ < num2_ptr->number_);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> le = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto num1_ptr = dynamic_cast<MalNumber*>(args[0].get());
+    auto num2_ptr = dynamic_cast<MalNumber*>(args[1].get());
+
+    return std::make_shared<MalBool>(num1_ptr->number_ <= num2_ptr->number_);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> g = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto num1_ptr = dynamic_cast<MalNumber*>(args[0].get());
+    auto num2_ptr = dynamic_cast<MalNumber*>(args[1].get());
+
+    return std::make_shared<MalBool>(num1_ptr->number_ > num2_ptr->number_);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> ge = [](auto args) {
-    mal_t_ptr s;
-    return s;
+    auto num1_ptr = dynamic_cast<MalNumber*>(args[0].get());
+    auto num2_ptr = dynamic_cast<MalNumber*>(args[1].get());
+
+    return std::make_shared<MalBool>(num1_ptr->number_ >= num2_ptr->number_);
 };
 
 

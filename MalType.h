@@ -41,6 +41,14 @@ struct MalList : MalType {
         mal_list_.push_back(mal_t);
     }
 
+    bool operator==(const MalList& other) {
+        if(mal_list_.size() != other.mal_list_.size()) {
+            return false;
+        }
+        // TODO: implement this
+        return true;
+    }
+
     std::vector<mal_t_ptr> mal_list_;
 };
 
@@ -84,7 +92,8 @@ struct MalString : MalType {
 };
 
 struct MalBool : MalType {
-    explicit MalBool(std::string token) : MalType {Mal_T::Bool}, bool_ {token == "true"} {} 
+    explicit MalBool(std::string token) : MalType {Mal_T::Bool}, bool_ {token == "true"} {}
+    explicit MalBool(bool bool_v) : MalType {Mal_T::Bool}, bool_ {bool_v} {}
     bool bool_;
 };
 
