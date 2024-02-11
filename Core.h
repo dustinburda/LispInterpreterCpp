@@ -116,7 +116,8 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> eq = [](auto args) {
     }
 
     // TODO: EQUALITY
-    return std::make_shared<MalBool>(false);
+    bool is_equal = (*(args[0]) == *(args[1]));
+    return std::make_shared<MalBool>(is_equal);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> l = [](auto args) {
