@@ -89,6 +89,40 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> prn = [](auto args) {
     return std::make_shared<MalNil>("nil");
 };
 
+static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> pr_str_func = [](auto args) {
+    size_t arg_length = args.size();
+
+    std::string result;
+    for(size_t i = 0; i < arg_length; i++) {
+        auto string_ptr = dynamic_cast<MalString*>(args[i].get());
+
+        std::string str;
+        if(string_ptr)
+            str = "\\\"" + (dynamic_cast<MalString*>(args[i].get())->string_) + "\\\"";
+        else
+            str = pr_str(args[i]);
+
+        result += str;
+        if(i != arg_length - 1) {
+            result += " ";
+        }
+    }
+    return std::make_shared<MalString>(result);
+};
+
+static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> str = [](auto args) {
+    size_t arg_length = args.size();
+
+    std::string result;
+    for(size_t i = 0; i < arg_length; i++) {
+        result += pr_str(args[i]);
+
+        if(i != arg_length - 1)
+            result += " ";
+    }
+    return std::make_shared<MalString>(result);
+};
+
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> list = [](auto args) {
     auto list_ptr = std::make_shared<MalList>();
 
@@ -188,6 +222,8 @@ public:
         ns_[">"] = std::make_shared<MalFunction>(g);
         ns_[">="] = std::make_shared<MalFunction>(ge);
         ns_["prn"] = std::make_shared<MalFunction>(prn);
+        ns_["pr-str"] = std::make_shared<MalFunction>(pr_str_func);
+        ns_["str"] = std::make_shared<MalFunction>(str);
     }
 
     const std::unordered_map<std::string, mal_t_ptr>& ns() const {
