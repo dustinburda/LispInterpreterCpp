@@ -6,6 +6,9 @@ WARNINGS := -Wall -Wextra
 SOURCES = Reader.cpp Printer.cpp Environment.cpp Core.cpp
 HEADERS = Reader.h Printer.h MalType.h Environment.h Core.h
 
+step5_tco: step5_tco.cpp ${SOURCES} ${HEADERS}
+	${CXX} ${CXXFLAGS} ${WARNINGS} step5_tco.cpp ${SOURCES} -o step5_tco
+
 step4_if_fn_do: step4_if_fn_do.cpp ${SOURCES} ${HEADERS}
 	${CXX} ${CXXFLAGS} ${WARNINGS} step4_if_fn_do.cpp ${SOURCES} -o step4_if_fn_do
 
@@ -22,4 +25,4 @@ step0_repl: step0_repl.cpp
 	${CXX} ${CXXFLAGS} ${WARNING} step0_repl.cpp -o step0_repl
 
 clean:
-	rm -f step0_repl step1_read_print step2_eval step3_env step4_if_fn_do
+	rm -f step0_repl step1_read_print step2_eval step3_env step4_if_fn_do step5_tco

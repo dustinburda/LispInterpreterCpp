@@ -1,5 +1,5 @@
 //
-// Created by advil on 2/5/24.
+// Created by advil on 2/12/24.
 //
 #include <iostream>
 #include <string>
@@ -137,15 +137,9 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
             } else if (symbol->symbol_ == "do") {
                 auto new_list_ptr = std::make_shared<MalList>();
 
-                size_t index = 0;
                 for(auto elem : list_ptr->mal_list_) {
-                    if(index == 0) {
-                        index++;
-                        continue;
-                    }
                     auto evaluated_elem = EVAL(elem, env);
                     new_list_ptr->add(evaluated_elem);
-                    index++;
                 }
 
                 return new_list_ptr->mal_list_.back();
@@ -154,7 +148,7 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                 auto evaluated_condition_ptr = EVAL(condition_ptr, env);
 
                 bool is_nil_or_false = (dynamic_cast<MalNil*>(evaluated_condition_ptr.get()) != nullptr)
-                                     || (dynamic_cast<MalBool*>(evaluated_condition_ptr.get()) != nullptr && !dynamic_cast<MalBool*>(evaluated_condition_ptr.get())->bool_);
+                                       || (dynamic_cast<MalBool*>(evaluated_condition_ptr.get()) != nullptr && !dynamic_cast<MalBool*>(evaluated_condition_ptr.get())->bool_);
 
 
                 mal_t_ptr result;
