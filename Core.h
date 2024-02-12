@@ -7,7 +7,9 @@
 
 #include <unordered_map>
 #include <string>
+#include <iostream>
 #include "MalType.h"
+#include "Printer.h"
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> plus = [](auto args) {
     int result = dynamic_cast<MalNumber*>(args[0].get())->number_;
@@ -71,13 +73,20 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> divide = [](auto args) {
         index++;
     }
 
+
     return std::make_shared<MalNumber>(result);
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> prn = [](auto args) {
-    // TODO: implement
-    mal_t_ptr s;
-    return s;
+    size_t arg_length = args.size();
+    for(size_t i = 0; i < arg_length; i++) {
+        std::cout << pr_str(args[i]);
+
+        if(i != arg_length - 1)
+            std::cout << " ";
+    }
+    std::cout << "\n";
+    return std::make_shared<MalNil>("nil");
 };
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> list = [](auto args) {
@@ -98,7 +107,13 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> is_list = [](auto args) 
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> is_empty = [](auto args) {
     auto list_ptr = dynamic_cast<MalList*>(args[0].get());
-    bool is_empty = list_ptr->mal_list_.empty();
+    auto vec_ptr = dynamic_cast<MalVec*>(args[0].get());
+
+    bool is_empty;
+    if(list_ptr)
+        is_empty = list_ptr->mal_list_.empty();
+    if(vec_ptr)
+        is_empty = vec_ptr->mal_vec_.empty();
 
     return std::make_shared<MalBool>(is_empty);
 };
@@ -172,7 +187,7 @@ public:
         ns_["<="] = std::make_shared<MalFunction>(le);
         ns_[">"] = std::make_shared<MalFunction>(g);
         ns_[">="] = std::make_shared<MalFunction>(ge);
-
+        ns_["prn"] = std::make_shared<MalFunction>(prn);
     }
 
     const std::unordered_map<std::string, mal_t_ptr>& ns() const {

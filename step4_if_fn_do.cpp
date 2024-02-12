@@ -220,10 +220,6 @@ std::string REP(std::string str) {
 
 
 int main() {
-    auto x = std::make_shared<int>(5);
-    auto y = x;
-    auto z = x;
-
     Core c;
 
     for(auto& [k, v] : c.ns()) {
