@@ -105,6 +105,11 @@ static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> is_empty = [](auto args)
 
 static std::function<mal_t_ptr(std::vector<mal_t_ptr>)> count = [](auto args) {
     auto list_ptr = dynamic_cast<MalList*>(args[0].get());
+
+    if(!list_ptr) {
+        return std::make_shared<MalNumber>(0);
+    }
+
     size_t count = list_ptr->mal_list_.size();
 
     return std::make_shared<MalNumber>(count);

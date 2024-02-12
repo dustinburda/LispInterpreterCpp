@@ -13,7 +13,7 @@
 #include "Core.h"
 
 Env repl_env { nullptr, {}, {} };
-
+std::vector<mal_t_ptr> function_asts;
 
 mal_t_ptr READ(std::string str);
 mal_t_ptr EVAL(mal_t_ptr ast, Env& env);
@@ -155,13 +155,22 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                 if(!is_nil_or_false) {
                     result = EVAL(list_ptr->mal_list_[2], env);
                 } else {
-                    result = EVAL(list_ptr->mal_list_[3], env);
+                    if(list_ptr->mal_list_.size() <= 3) {
+                        result = std::make_shared<MalNil>("nil");
+                    } else {
+                        result = EVAL(list_ptr->mal_list_[3], env);
+                    }
                 }
 
                 return result;
 
             } else if(symbol->symbol_ == "fn*") {
+                function_asts.push_back(static_cast<const std::shared_ptr<MalType>>(list_ptr));
+
                 std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn = [&env, list_ptr](std::vector<mal_t_ptr> args) {
+                    //  TODO: Move this outside of the closure
+
+                    //====================================================
                     std::vector<std::string> symbols;
 
                     auto parameter_list = dynamic_cast<MalList*>(list_ptr->mal_list_[1].get());
@@ -170,7 +179,7 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                         std::string symbol_str = dynamic_cast<MalSymbol*>(symbol_ptr.get())->symbol_;
                         symbols.push_back(symbol_str);
                     }
-
+                    // ==================================================
                     Env inner_env = Env(&env, symbols, args);
                     return EVAL(fn_body, inner_env);
                 };
@@ -208,6 +217,10 @@ std::string REP(std::string str) {
 
 
 int main() {
+    auto x = std::make_shared<int>(5);
+    auto y = x;
+    auto z = x;
+
     Core c;
 
     for(auto& [k, v] : c.ns()) {

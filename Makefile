@@ -6,7 +6,7 @@ WARNINGS := -Wall -Wextra
 SOURCES = Reader.cpp Printer.cpp Environment.cpp Core.cpp
 HEADERS = Reader.h Printer.h MalType.h Environment.h Core.h
 
-step4_if_fn_do: main.cpp ${SOURCES} ${HEADERS}
+step4_if_fn_do: step4_if_fn_do.cpp ${SOURCES} ${HEADERS}
 	${CXX} ${CXXFLAGS} ${WARNINGS} step4_if_fn_do.cpp ${SOURCES} -o step4_if_fn_do
 
 step3_env: step3_env.cpp ${SOURCES} ${HEADERS}

@@ -8,6 +8,7 @@
 #include <functional>
 #include <stdexcept>
 
+#define EQUAL_EQUAL 1
 
 struct MalType;
 using mal_t_ptr = std::shared_ptr<MalType>;
@@ -33,7 +34,9 @@ struct MalType {
     MalType(Mal_T mal_t) : type { mal_t }  {};
     virtual ~MalType() {};
 
-    virtual bool operator==(const MalType& other);
+#if EQUAL_EQUAL
+    virtual bool operator==(const MalType& other) = 0;
+#endif //EQUAL_EQUAL
 
     Mal_T get_type() { return type; }
     Mal_T type;
@@ -46,6 +49,7 @@ struct MalList : MalType {
         mal_list_.push_back(mal_t);
     }
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
 
         // cast other into MalList&
@@ -64,6 +68,7 @@ struct MalList : MalType {
 
         return true;
     }
+#endif // EQUAL_EQUAL
 
     std::vector<mal_t_ptr> mal_list_;
 };
@@ -76,6 +81,7 @@ struct MalVec : MalType {
         mal_vec_.push_back(mal_t);
     }
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
 
         // cast other into MalVec&
@@ -94,6 +100,7 @@ struct MalVec : MalType {
 
         return true;
     }
+#endif //EQUAL_EQUAL
     
     std::vector<mal_t_ptr> mal_vec_;
 };
@@ -105,6 +112,7 @@ struct MalMap : MalType {
         malmap_[k] = v;
     }
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
 
         // cast other into MalVec&
@@ -123,6 +131,7 @@ struct MalMap : MalType {
 
         return true;
     }
+#endif //EQUAL_EQUAL
 
     std::unordered_map<mal_t_ptr, mal_t_ptr> malmap_;
 };
@@ -132,25 +141,28 @@ struct MalMap : MalType {
 struct MalNumber : MalType {
     explicit MalNumber(int number) : MalType {Mal_T::Number},  number_{ number } {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_num = dynamic_cast<const MalNumber&>(other);
 
         return number_ == other_num.number_;
     }
-
+#endif //EQUAL_EQUAL
     int number_;
 };
 
 struct MalSymbol : MalType {
     explicit MalSymbol(std::string symbol) : MalType {Mal_T::Symbol}, symbol_ { std::move(symbol) } {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_symbol = dynamic_cast<const MalSymbol&>(other);
 
         return symbol_ == other_symbol.symbol_;
     }
+#endif // EQUAL_EQUAL
 
     std::string symbol_;
 };
@@ -159,13 +171,14 @@ struct MalSymbol : MalType {
 struct MalString : MalType {
     explicit MalString(std::string s) : MalType {Mal_T::String}, string_ { std::move(s) } {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_string = dynamic_cast<const MalString&>(other);
 
         return string_ == other_string.string_;
     }
-
+#endif // EQUAL_EQUAL
     std::string string_;
 };
 
@@ -173,12 +186,14 @@ struct MalBool : MalType {
     explicit MalBool(std::string token) : MalType {Mal_T::Bool}, bool_ {token == "true"} {}
     explicit MalBool(bool bool_v) : MalType {Mal_T::Bool}, bool_ {bool_v} {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_bool = dynamic_cast<const MalBool&>(other);
 
         return bool_ == other_bool.bool_;
     }
+#endif // EQUAL_EQUAL
 
     bool bool_;
 };
@@ -186,23 +201,27 @@ struct MalBool : MalType {
 struct MalNil : MalType {
     explicit MalNil(std::string nil) : MalType { Mal_T::Nil}, nil_{nil} {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         return true;
     }
+#endif // EQUAL_EQUAL
 
     std::string nil_;
 };
 
 struct MalFunction : MalType {
-    MalFunction(std::function<mal_t_ptr(std::vector<mal_t_ptr>)>f) : MalType {Mal_T::Function}, fn { f } {}
+    explicit MalFunction(std::function<mal_t_ptr(std::vector<mal_t_ptr>)>f) : MalType {Mal_T::Function}, fn { std::move(f) } {}
 
-    mal_t_ptr apply_fn(std::vector<mal_t_ptr> args) {
+    mal_t_ptr apply_fn(const std::vector<mal_t_ptr>& args) const {
         return fn(args);
     }
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         return true; // TODO: not sure what this should be
     }
+#endif // EQUAL_EQUAL
 
     std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn;
 };
@@ -210,12 +229,14 @@ struct MalFunction : MalType {
 struct MalKeyword : MalType {
     explicit MalKeyword(std::string keyword) : MalType { Mal_T::Keyword }, keyword_ { keyword } {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_keyword = dynamic_cast<const MalKeyword&>(other);
 
         return keyword_ == other_keyword.keyword_;
     }
+#endif //EQUAL_EQUAL
 
     std::string keyword_;
 };
@@ -223,12 +244,14 @@ struct MalKeyword : MalType {
 struct MalQuote : MalType {
     explicit MalQuote(std::string quote_symbol) : MalType { Mal_T::Quote}, quote_symbol_ { quote_symbol } {}
 
+#if EQUAL_EQUAL
     bool operator==(const MalType& other) override {
         // cast other into MalNumber&
         const auto& other_quote = dynamic_cast<const MalQuote&>(other);
 
         return quote_symbol_ == other_quote.quote_symbol_;
     }
+#endif //EQUAL_EQUAl
 
     std::string quote_symbol_;
 };
