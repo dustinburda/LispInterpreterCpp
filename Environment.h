@@ -25,12 +25,22 @@ private:
 class Env {
 public:
     explicit Env(Env* outer, const std::vector<std::string>& binds, const std::vector<mal_t_ptr>& exprs ) : outer_ {outer} {
-        if(binds.size() != exprs.size())
-            throw std::logic_error("Binds and Exprs should have the same size!");
 
-        auto arg_length = binds.size();
-        for(size_t i = 0; i < arg_length; i++) {
-            data_[binds[i]] = exprs[i];
+        // TODO: add more& support
+
+        for(size_t i = 0; i < binds.size(); i++) {
+            if(binds[i] == "&") {
+                auto remaining_args = std::make_shared<MalList>();
+                for(size_t j = i; j < exprs.size(); j++) {
+                    remaining_args->add(exprs[j]);
+                }
+
+                data_[binds[i+1]] = remaining_args;
+                break;
+            } else {
+                data_[binds[i]] = exprs[i];
+            }
+
         }
     }
 

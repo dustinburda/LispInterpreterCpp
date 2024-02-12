@@ -45,7 +45,7 @@ struct MalType {
 struct MalList : MalType {
     MalList() : MalType { Mal_T::List } {}
 
-    void add(mal_t_ptr& mal_t) {
+    void add(const mal_t_ptr& mal_t) {
         mal_list_.push_back(mal_t);
     }
 

@@ -244,6 +244,8 @@ int main() {
     repl_env.set("def!", std::make_shared<MalSymbol>("def!"));
     repl_env.set("let*", std::make_shared<MalSymbol>("let*"));
 
+    REP("(def! not (fn* (a) (if a false true)))");
+
     std::string line;
 
     while(!std::cin.eof()) {
