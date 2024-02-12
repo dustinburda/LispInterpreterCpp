@@ -165,23 +165,26 @@ mal_t_ptr EVAL(mal_t_ptr ast, Env& env) {
                 return result;
 
             } else if(symbol->symbol_ == "fn*") {
-                function_asts.push_back(static_cast<const std::shared_ptr<MalType>>(list_ptr));
+                function_asts.push_back(ast);
 
-                std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn = [&env, list_ptr](std::vector<mal_t_ptr> args) {
+                std::function<mal_t_ptr(std::vector<mal_t_ptr>)> fn = [&env, ast](std::vector<mal_t_ptr> args) {
                     //  TODO: Move this outside of the closure
 
                     //====================================================
                     std::vector<std::string> symbols;
 
-                    auto parameter_list = dynamic_cast<MalList*>(list_ptr->mal_list_[1].get());
-                    auto fn_body = list_ptr->mal_list_[2];
+                    auto fn_ast_ptr = dynamic_cast<MalList*>(ast.get());
+
+                    auto parameter_list = dynamic_cast<MalList*>(fn_ast_ptr->mal_list_[1].get());
+                    auto fn_body = fn_ast_ptr->mal_list_[2];
                     for(auto& symbol_ptr : parameter_list->mal_list_) {
                         std::string symbol_str = dynamic_cast<MalSymbol*>(symbol_ptr.get())->symbol_;
                         symbols.push_back(symbol_str);
                     }
                     // ==================================================
-                    Env inner_env = Env(&env, symbols, args);
-                    return EVAL(fn_body, inner_env);
+                    Env* inner_env = new Env(&env, symbols, args); // TODO modify this
+                    auto evaluated_value = EVAL(fn_body, *inner_env);
+                    return evaluated_value;
                 };
 
                 return std::make_shared<MalFunction>(fn);
